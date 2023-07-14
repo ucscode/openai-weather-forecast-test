@@ -48,7 +48,7 @@ class WeatherForecastTest extends TestCase {
         
         # Mock OpenAI Class
 
-        print_r( $this->wfcast->conversation($ws_data, 'funny') ); return;
+        print_r( json_encode( $this->wfcast->conversation($ws_data, 'funny') ) ); return;
 
         $openAI = $this->createMock(OpenAI::class);
         $openAI->expects( $this->atMost(1) )

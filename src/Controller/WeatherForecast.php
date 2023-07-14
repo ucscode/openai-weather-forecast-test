@@ -55,12 +55,6 @@ class WeatherForecast {
             $exception->info = $data;
             throw $exception;
         };
-        
-        /**
-         * Prepare data for ChatGPT Usage
-         * Since The model has limited token, let us focus relevant information
-         */
-        unset($data['request']);
 
         # Get response from OpenAI (ChatGPT) endpoint
 
