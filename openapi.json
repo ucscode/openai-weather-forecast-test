@@ -1,0 +1,39 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "OpenAI Weather Forecast Test",
+        "summary": "Get funny or serious weather replies for any location.",
+        "description": "This is the succession of a test that utilizes OpenAI API to provides customized replies about the weather in different locations. By accessing specific endpoints, users can retrieve either funny or serious responses related to the weather conditions in their desired place or region.\n\nFor example, visiting the \"\/new-york\/funny\" endpoint would generate a lighthearted and humorous reply about the weather in New York, while accessing the \"/new-york/serious\" endpoint would provide a more solemn and informative response. The API caters to various locations, allowing users to substitute \"new-york\" with any place or region of their choice to obtain weather-related content with the desired tone and style.",
+        "contact": {
+            "name": "ucscode",
+            "url": "http://ucscode.me",
+            "email": "uche23mail@gmail.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/license/mit/"
+        },
+        "version": "1.0.0",
+        "paths": {
+            "/{region}/{tone}": {
+                "get": {
+                    "description": "Returns the reply from OpenAI about a region with the funny or serious tone",
+                    "responses": {
+                        "200": {
+                            "description": "A `true` status and the OpenAI reply",
+                            "content": {
+                                "application/json": {}
+                            }
+                        },
+                        "default": {
+                            "description": "A `false` status and an error message",
+                            "content": {
+                                "application/json": {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } 
+}
