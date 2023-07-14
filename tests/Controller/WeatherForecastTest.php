@@ -20,7 +20,7 @@ use Orhanerday\OpenAi\OpenAi;
 class WeatherForecastTest extends TestCase {
 
     public function setup(): void {
-        $this->wfcast = new WeatherForecast( ".env.test" );
+        $this->wfcast = new WeatherForecast( ".env.test.local" );
     }
 
     public function testGetWeather() { 
