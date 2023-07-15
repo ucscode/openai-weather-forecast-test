@@ -13,8 +13,8 @@ class WeatherForecast
 
     public function __construct($env = '.env')
     {
-        
-        $files = array_filter(array_map(function($file) {
+
+        $files = array_filter(array_map(function ($file) {
             $file = trim($file);
             $path = realpath(__DIR__ . "/../../") . "/{$file}";
             return is_file($path) ? $path : null;
@@ -168,7 +168,8 @@ class WeatherForecast
 
     }
 
-    public function throwException(string $message, array $info = [], $statusCode = 400) {
+    public function throwException(string $message, array $info = [], $statusCode = 400)
+    {
         $exception = new \Exception($message);
         $exception->info = $info + ['source' => 'self'];
         $exception->statusCode = $statusCode;

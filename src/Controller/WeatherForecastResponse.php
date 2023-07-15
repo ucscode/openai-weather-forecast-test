@@ -26,11 +26,11 @@ class WeatherForecastResponse extends AbstractController
         $this->wfcast = new WeatherForecast(".env.local, .env");
 
         try {
-            
-            $this->testParameters( $region, $tone );
+
+            $this->testParameters($region, $tone);
 
             # Get Weather
-            
+
             $weather = $this->wfcast->getWeather($region);
 
             # Get Reply
@@ -82,21 +82,22 @@ class WeatherForecastResponse extends AbstractController
 
     }
 
-    private function testParameters(string $region, string $tone) {
-        
-        if( empty($region) ) {
+    private function testParameters(string $region, string $tone)
+    {
+
+        if(empty($region)) {
 
             $this->wfcast->throwException("This endpoint requires a location", [
                 "error" => "No location specified"
             ]);
 
-        } elseif( empty($tone) ) {
+        } elseif(empty($tone)) {
 
             $this->wfcast->throwException("This endpoint required a funny or serious tone", [
                 "error" => "No tone specified"
             ]);
 
-        } elseif( !in_array(trim($tone), ['funny', 'serious']) ) {
+        } elseif(!in_array(trim($tone), ['funny', 'serious'])) {
 
             $this->wfcast->throwException("Tone should either be funny or serious, \"{$tone}\" given instead", [
                 "error" => "Invalid tone specification"

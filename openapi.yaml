@@ -2,17 +2,41 @@ openapi: 3.0.3
 info:
   title: OpenAI Weather Forecast Test
   description: |-
-    This is the succession of a test that utilizes OpenAI API to provides
-    customized replies about the weather in different locations. By accessing
+    This is the succession of a test built on symfony 6 framework that utilizes [Weather stack](https://weatherstack.com/) and [OpenAI](https://openai.com/) API to provides
+    customized replies about the weather of different locations. By accessing
     specific endpoints, users can retrieve either funny or serious responses
-    related to the weather conditions in their desired place or region.
+    related to the weather conditions in the specified place or region.
 
-    For example, visiting the "/new-york/funny" endpoint would generate a
+    For example, visiting the `/new-york/funny` endpoint would generate a
     lighthearted and humorous reply about the weather in New York, while
-    accessing the "/new-york/serious" endpoint would provide a more solemn and
+    accessing the `/new-york/serious` endpoint would provide a more solemn and
     informative response. The API caters to various locations, allowing users to
-    substitute "new-york" with any place or region of their choice to obtain
+    substitute *new-york* with any place or region of their choice to obtain
     weather-related content with the desired tone and style.
+    
+    ***
+    
+    ## Example
+    
+    ```
+    http://localhost/nigeria/funny
+    ```
+    ## Response
+    
+    ```
+    {
+      "name": "OpenAI Weather Forecast Test",
+      "time": 1689399903,
+      "success": true,
+      "status": 200,
+      "message": "Ah, Abuja, Nigeria! Let me take a look at the weather there. Well, my friend, it seems like the weather in Abuja is playing a little game of hide-and-seek. It's partly cloudy, with a temperature of 22 degrees Celsius. The wind is blowing from...",
+      "info": []
+    }
+    ```
+    
+    ## Be informed:
+    
+    Your Weather stack and OpenAI API keys must be set internally in the `.env` file for this API to work.
   contact:
     name: ucscode
     url: http://ucscode.me
@@ -40,10 +64,37 @@ paths:
         tone
       responses:
         '200':
-          description: A `true` status and the OpenAI reply
+          description: |- 
+            Returns a JSON data with success output of the chat completion API. An example would look like this:
+            
+            ```
+            {
+                "name": "OpenAI Weather Forecast Test",
+                "time": 1689405571,
+                "success": true,
+                "status": 200,
+                "message": "The AI Message...",
+                "info": []
+            }
+            ```
           content:
             application/json: {}
         default:
-          description: A `false` status and an error message
+          description: |-
+            Returns a JSON data describing an unsuccessful output of the chat completion API. An example would look like this:
+            
+            ```
+            {
+                "name": "OpenAI Weather Forecast Test",
+                "time": 1689405763,
+                "success": false,
+                "status": 400,
+                "message": "This endpoint requires a location",
+                "info": {
+                    "error": "No location specified",
+                    "source": "self"
+                }
+            }
+            ```
           content:
             application/json: {}
