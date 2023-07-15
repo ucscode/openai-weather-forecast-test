@@ -6,27 +6,37 @@ use GuzzleHttp\Client;
 use Symfony\Component\Dotenv\Dotenv;
 use Orhanerday\OpenAi\OpenAi;
 
-class WeatherForecast {
-
+class WeatherForecast
+{
     protected string $weatherstackEndpoint = "http://api.weatherstack.com/current";
     protected string $openAIEndpoint = 'https://api.openai.com/v1/chat/completions';
 
-    public function __construct( $env = '.env') {
+    public function __construct($env = '.env')
+    {
+        
+        $files = array_filter(array_map(function($file) {
+            $file = trim($file);
+            $path = realpath(__DIR__ . "/../../") . "/{$file}";
+            return is_file($path) ? $path : null;
+        }, explode(",", $env)));
+
         /**
          * Load the .env variables
          * However, you can user a different env file such as .env.local / .env.test
          */
-        (new Dotenv())->usePutenv()->load( realpath( __DIR__ . "/../../" ) . "/{$env}" );
+        (new Dotenv())->usePutenv()->load($files[0]);
+
     }
 
     # Get the weather from weatherstack API
 
-    public function getWeather( string $location, array $config = [] ): array {
+    public function getWeather(string $location, array $config = []): array
+    {
 
         $location = str_replace("-", " ", $location);
 
         $client = new Client($config); // Mockable for testing
-        
+
         # Send a request to weatherstack
         $response = $client->request('GET', $this->weatherstackEndpoint, [
             "query" => [
@@ -39,21 +49,20 @@ class WeatherForecast {
         $content = $response->getBody()->getContents();
 
         # Return array
-        return json_decode( $content, true );
+        return json_decode($content, true);
 
     }
 
     # Get ChatGPT Response;
 
-    public function getChat( OpenAi $openAI, array $data, string $tone ): array {
+    public function getChat(OpenAi $openAI, array $data, string $tone): array
+    {
 
         #  A successful weatherstack response contains the "request" key
 
-        if( !isset($data['request']) ) {
-            $exception = new \Exception("Oh no! We couldn't provide the information you are looking for");
+        if(!isset($data['request'])) {
             $data['source'] = 'Weather Stack';
-            $exception->info = $data;
-            throw $exception;
+            $this->throwException("Oh no! We couldn't provide the information you are looking for", $data);
         };
 
         # Get response from OpenAI (ChatGPT) endpoint
@@ -61,28 +70,27 @@ class WeatherForecast {
         $request = [
             "model" => "gpt-3.5-turbo",
             "temperature" => 0.7,
-            'max_tokens' => 4000,
+            'max_tokens' => 500,
             'frequency_penalty' => 0,
             'presence_penalty' => 0,
             "messages" => $this->conversation($data, $tone)
         ];
 
-        $chat = $openAI->chat( $request );
+        $chat = $openAI->chat($request);
 
-        $response = json_decode( $chat, true );
+        $response = json_decode($chat, true);
 
-        if( isset($response['error'] ) ) {
-            $exception = new \Exception("Sorry! We are unable to give a response about the weather at this moment");
+        if(isset($response['error'])) {
             $response['source'] = 'OpenAI';
-            $exception->info = $response;
-            throw $exception;
+            $this->throwException("Sorry! We are unable to give a response about the weather at this moment", $response);
         };
-        
+
         return $response;
 
     }
 
-    public function respondWith(int $code, string $message, array $data = []) {
+    public function respondWith(int $code, string $message, array $data = [])
+    {
 
         $JsonResponse = array(
             "name" => "OpenAI Weather Forecast Test",
@@ -93,13 +101,14 @@ class WeatherForecast {
             "info" => $data
         );
 
-        return json_encode( $JsonResponse, JSON_PRETTY_PRINT );
+        return json_encode($JsonResponse, JSON_PRETTY_PRINT);
 
     }
 
     # Generate Conversation
 
-    public function conversation(array $ws_data, string $tone) {
+    public function conversation(array $ws_data, string $tone)
+    {
 
         /**
          * Gather only important information as the number of tokens are limited!
@@ -120,33 +129,50 @@ class WeatherForecast {
             "weather_descriptions" => "description"
         ];
 
-        foreach( $ws_data['current'] as $key => $value ) {
+        foreach($ws_data['current'] as $key => $value) {
 
             if(in_array($key, ['weather_icons', 'observation_time'])) {
                 continue;
             };
 
-            if( array_key_exists($key, $replace_key) ) $key = $replace_key[$key];
+            if(array_key_exists($key, $replace_key)) {
+                $key = $replace_key[$key];
+            }
 
             $data['weather'][$key] = $value;
 
         };
-        
+
         $data['tone'] = $tone;
 
         $history = [
             [
-                "role" => "system", 
-                "content" => "Respond in a very funny or serious manner about weather using the following JSON data " . json_encode($data) 
+                "role" => "system",
+                "content" => "While considering the \"tone\" attribute, respond in a very funny or serious manner about weather using the following JSON data " . json_encode($data)
             ],
             [
                 "role" => "user",
-                "content" => "What is the weather like in {$data['location']}."
+                "content" => "The weather seems strange today. I'm curious to know how it is elsewhere."
+            ],
+            [
+                "role" => "assistant",
+                "content" => "I can give you a {$data['tone']} detail if you tell me the location on your mind."
+            ],
+            [
+                "role" => "user",
+                "content" => "Okay, what the weather is like in {$data['location']}."
             ]
         ];
 
         return $history;
 
+    }
+
+    public function throwException(string $message, array $info = [], $statusCode = 400) {
+        $exception = new \Exception($message);
+        $exception->info = $info + ['source' => 'self'];
+        $exception->statusCode = $statusCode;
+        throw $exception;
     }
 
 }

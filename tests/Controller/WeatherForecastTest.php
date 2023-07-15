@@ -1,6 +1,6 @@
 <?php
 
-declare( strict_types = 1 );
+declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
@@ -17,13 +17,15 @@ use GuzzleHttp\Psr7\Response;
 use App\Controller\WeatherForecast;
 use Orhanerday\OpenAi\OpenAi;
 
-class WeatherForecastTest extends TestCase {
-
-    public function setup(): void {
-        $this->wfcast = new WeatherForecast( ".env.test.local" );
+class WeatherForecastTest extends TestCase
+{
+    public function setup(): void
+    {
+        $this->wfcast = new WeatherForecast(".env.test.local");
     }
 
-    public function testGetWeather() { 
+    public function testGetWeather()
+    {
 
         # get weather stack data;
 
@@ -31,7 +33,7 @@ class WeatherForecastTest extends TestCase {
 
         # print_r( $data );
 
-        $this->assertIsArray($ws_data);    
+        $this->assertIsArray($ws_data);
 
         $valid = array_key_exists("request", $ws_data) || array_key_exists("success", $ws_data);
 
@@ -44,30 +46,28 @@ class WeatherForecastTest extends TestCase {
     /**
      * @depends testGetWeather
      */
-    public function testGetChat( $ws_data ) {
-        
+    public function testGetChat($ws_data)
+    {
+
         # Mock OpenAI Class
 
-        print_r( json_encode( $this->wfcast->conversation($ws_data, 'funny') ) ); return;
-
         $openAI = $this->createMock(OpenAI::class);
-        $openAI->expects( $this->atMost(1) )
+        $openAI->expects($this->atMost(1))
             ->method("chat")
             ->willReturn(self::chatMock());
 
-        if( !isset($ws_data['request']) ) {
+        if(!isset($ws_data['request'])) {
             $this->expectException(\Exception::class);
         };
 
-        $chat = $this->wfcast->getChat( $openAI, $ws_data, "funny" );
+        $chat = $this->wfcast->getChat($openAI, $ws_data, "funny");
 
-        $this->assertIsArray( $chat );
-
-        var_dump( $chat );
+        $this->assertIsArray($chat);
 
     }
 
-    public static function guzzleMock() {
+    public static function guzzleMock()
+    {
 
         $mockery = [
 
@@ -80,8 +80,8 @@ class WeatherForecastTest extends TestCase {
         ];
 
         shuffle($mockery);
-        
-        $mock = new MockHandler( $mockery );
+
+        $mock = new MockHandler($mockery);
 
         # Return Mocked Data;
 
@@ -89,7 +89,8 @@ class WeatherForecastTest extends TestCase {
 
     }
 
-    public static function chatMock() {
+    public static function chatMock()
+    {
 
         $response = [
             '{

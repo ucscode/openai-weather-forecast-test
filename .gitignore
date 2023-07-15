@@ -18,3 +18,8 @@
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
+
+###> custom ###
+.php-cs-fixer.cache
+php-cs-fixer-v3.phar
+###< custom ###
