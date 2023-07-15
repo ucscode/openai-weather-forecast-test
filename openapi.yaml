@@ -65,36 +65,44 @@ paths:
       responses:
         '200':
           description: |- 
-            Returns a JSON data with success output of the chat completion API. An example would look like this:
-            
-            ```
-            {
-                "name": "OpenAI Weather Forecast Test",
-                "time": 1689405571,
-                "success": true,
-                "status": 200,
-                "message": "The AI Message...",
-                "info": []
-            }
-            ```
+            Returns a JSON data that defines a successful output of the chat completion API. 
           content:
-            application/json: {}
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/get_response'
         default:
           description: |-
             Returns a JSON data describing an unsuccessful output of the chat completion API. An example would look like this:
-            
-            ```
-            {
-                "name": "OpenAI Weather Forecast Test",
-                "time": 1689405763,
-                "success": false,
-                "status": 400,
-                "message": "This endpoint requires a location",
-                "info": {
-                    "error": "No location specified",
-                    "source": "self"
-                }
-            }
-            ```
           content:
-            application/json: {}
+            application/json:
+              schema:
+                allOf: 
+                  - $ref: '#/components/schemas/get_response'
+                  - type: object
+                    properties:
+                      info:
+                        type: object
+                        properties:
+                          error:
+                            type: string
+                          source:
+                            oneOf: 
+                              - type: string
+                              - type: object
+components:
+  schemas:
+    get_response:
+        type: object
+        properties:
+          name:
+            type: string
+          time:
+            type: integer
+          success:
+            type: boolean
+          status:
+            type: integer
+          message:
+            type: string
+          info:
+            type: object
